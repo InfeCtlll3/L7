@@ -31,6 +31,14 @@ type Params struct {
 	TimeStampFormat, LogLevel int
 }
 
+// validateLogLevel will validate if the logging level is valid.
+func validateLogLevel(loggingLevel int) bool {
+	if loggingLevel%10 == 0 && loggingLevel >= DEBUG && loggingLevel <= CRITICAL {
+		return true
+	}
+	return false
+}
+
 // Logger is a method to create the logging object to be used by Log
 // will return a struct of LoggerStruct
 // This method is used in order to set defaults
@@ -41,7 +49,7 @@ func Logger(kargs Params) LoggerStruct {
 	if kargs.LogLevel == 0 {
 		kargs.LogLevel = ERROR
 	}
-	if kargs.LogLevel > CRITICAL || kargs.LogLevel < DEBUG || kargs.TimeStampFormat > Epoch || kargs.TimeStampFormat < NoTime {
+	if !validateLogLevel(kargs.LogLevel) || kargs.TimeStampFormat > Epoch || kargs.TimeStampFormat < NoTime {
 		panic("Misconfiguration when configuring the Logger object.")
 	} else {
 		return LoggerStruct{kargs.TimeStampFormat,
@@ -93,7 +101,7 @@ func (context *LoggerStruct) Log(messageLevel int, message string) {
 // SetLogLevel is the method used to change to different log levels
 // May be useful to enable/disable logging at certain parts of the code
 func (context *LoggerStruct) SetLogLevel(newLevel int) {
-	if newLevel%10 == 0 && newLevel >= DEBUG && newLevel <= CRITICAL {
+	if validateLogLevel(newLevel) {
 		if context.logLevel != newLevel {
 			context.logLevel = newLevel
 		}
