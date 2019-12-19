@@ -77,7 +77,6 @@ func Logger(kargs Params) LoggerStruct {
 func (context *LoggerStruct) Log(messageLevel int, messages ...string) {
 	if messageLevel >= context.logLevel {
 		var currentTime, currentLevel string
-
 		// define the log context
 		switch context.logTimeStamp {
 		case NoTime:
@@ -94,7 +93,7 @@ func (context *LoggerStruct) Log(messageLevel int, messages ...string) {
 			currentTime = strconv.Itoa(int(time.Now().Unix()))
 		}
 		// define a nicely verbose loglevel name
-		switch context.logLevel {
+		switch messageLevel {
 		case DEBUG:
 			// case 1 means debug
 			currentLevel = "[DEBUG]"
