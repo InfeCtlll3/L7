@@ -28,7 +28,7 @@ In case of problems, do not hesitate to cut a ticket or please e-mail me at cont
 
 ```go
 import (
-	"L7"
+	"github.com/infectlll3/L7"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 ```
 #### Log Format
 ```
-Timestamp [LogLevel] (context.method) error message
+Timestamp [LogLevel] (context.method) error message	
 ```
 
 ### Supported logging levels
