@@ -110,5 +110,5 @@ func trace() string {
 	}
 
 	fn := runtime.FuncForPC(pc)
-	return fn.Name()
+	return "(" + fn.Name() + ")"
 }

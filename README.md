@@ -45,8 +45,12 @@ func main() {
 #### Output
 
 ```bash
-2019-12-19T02:04:58.343Z [DEBUG] main.main This is a debug message!
-2019-12-19T02:04:58.343Z [ERROR] main.main This is an error message!
+2019-12-19T02:04:58.343Z [DEBUG] (main.main) This is a debug message!
+2019-12-19T02:04:58.343Z [ERROR] (main.main) This is an error message!
+```
+#### Log Format
+```
+Timestamp [LogLevel] (context.method) error message
 ```
 
 ### Supported logging levels
