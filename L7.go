@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -39,6 +40,21 @@ func validateLogLevel(loggingLevel int) bool {
 	return false
 }
 
+func stringBuilder(Strings []string) string {
+	if len(Strings) == 0 {
+		return ""
+	} else {
+		if len(Strings) == 1 {
+			return Strings[0]
+		}
+	}
+	var strReturn strings.Builder
+	for _, str := range Strings {
+		strReturn.WriteString(str)
+	}
+	return strReturn.String()
+}
+
 // Logger is a method to create the logging object to be used by Log
 // will return a struct of LoggerStruct
 // This method is used in order to set defaults
@@ -58,7 +74,7 @@ func Logger(kargs Params) LoggerStruct {
 }
 
 // Log is the method used to log you messages.
-func (context *LoggerStruct) Log(messageLevel int, message string) {
+func (context *LoggerStruct) Log(messageLevel int, messages ...string) {
 	if messageLevel >= context.logLevel {
 		var currentTime, currentLevel string
 
@@ -94,7 +110,7 @@ func (context *LoggerStruct) Log(messageLevel int, message string) {
 			// case 5 means critical
 			currentLevel = "[CRITICAL]"
 		}
-		fmt.Println(currentTime, currentLevel, trace(), message)
+		fmt.Println(currentTime, currentLevel, trace(), stringBuilder(messages))
 	}
 }
 
@@ -118,5 +134,5 @@ func trace() string {
 	}
 
 	fn := runtime.FuncForPC(pc)
-	return "(" + fn.Name() + ")"
+	return stringBuilder([]string{"(", fn.Name(), ")"})
 }

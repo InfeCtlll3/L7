@@ -39,6 +39,12 @@ func main() {
 	// log level is now error
 	log.Log(L7.DEBUG, "This message will not be displayed because of the log level")
 	log.Log(L7.ERROR, "This is an error message!")
+	// log also support multiple logging messages in a single call just like Println
+	// This uses some performatic string builder (string buffers) in order to concatenate
+	// This way you don't need to concatenate stuff when you call logging
+	// Just make sure all the arguments are string :)
+	veryImportantVariable := "Not so important"
+	log.Log(L7.ERROR, "here is your variable: ", veryImportantVariable)
 }
 ```
 
@@ -47,6 +53,7 @@ func main() {
 ```bash
 2019-12-19T02:04:58.343Z [DEBUG] (main.main) This is a debug message!
 2019-12-19T02:04:58.343Z [ERROR] (main.main) This is an error message!
+2019-12-19T19:15:49.480Z [ERROR] (main.main) here is your variable: Not so important
 ```
 #### Log Format
 ```
