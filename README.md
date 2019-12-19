@@ -28,7 +28,7 @@ In case of problems, do not hesitate to cut a ticket or please e-mail me at cont
 
 ```go
 import (
-	"github.com/infectlll3/L7"
+	"github.com/InfeCtlll3/L7"
 )
 
 func main() {
