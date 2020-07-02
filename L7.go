@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"os"
 )
 
 // define all the constants for the code
@@ -19,17 +20,23 @@ const (
 	WARNING       = 30
 	INFO          = 20
 	DEBUG         = 10
+	Console = false
+	Logfile = true
 )
 
 // LoggerStruct defines the structure of the logging object.
 type LoggerStruct struct {
 	logTimeStamp int
 	logLevel     int
+	logStdOut	 bool
+	logFileName string
 }
 
 // Params is the structure used to create the Logger object
 type Params struct {
-	TimeStampFormat, LogLevel int
+	TimeStampFormat, LogLevel  int
+	LogFileName string
+	LogStdOutDst bool
 }
 
 // validateLogLevel will validate if the logging level is valid.
@@ -65,11 +72,61 @@ func Logger(kargs Params) LoggerStruct {
 	if kargs.LogLevel == 0 {
 		kargs.LogLevel = ERROR
 	}
-	if !validateLogLevel(kargs.LogLevel) || kargs.TimeStampFormat > Epoch || kargs.TimeStampFormat < NoTime {
+	if kargs.LogStdOutDst == false {
+		kargs.LogStdOutDst = Console
+	}
+	if !validateLogLevel(kargs.LogLevel) || kargs.TimeStampFormat > Epoch || kargs.TimeStampFormat < NoTime ||
+		kargs.LogFileName == "" {
 		panic("Misconfiguration when configuring the Logger object.")
 	} else {
 		return LoggerStruct{kargs.TimeStampFormat,
-			kargs.LogLevel}
+			kargs.LogLevel, kargs.LogStdOutDst, kargs.LogFileName}
+	}
+}
+
+func (context *LoggerStruct) LogErrorIfAny(err error, messageLevel int, messages ...string) {
+	if err != nil {
+		if messageLevel >= context.logLevel {
+			var currentTime, currentLevel string
+			// define the log context
+			switch context.logTimeStamp {
+			case NoTime:
+				// case 1 means no timestamp
+				currentTime = ""
+			case FullTimeStamp:
+				// case 2 means full local timestamp
+				currentTime = time.Now().Format("15:04:05 02/01/2006")
+			case Zulu:
+				// case 3 means zulu format
+				currentTime = time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
+			case Epoch:
+				// case 4 means epoch
+				currentTime = strconv.Itoa(int(time.Now().Unix()))
+			}
+			// define a nicely verbose loglevel name
+			switch messageLevel {
+			case DEBUG:
+				// case 1 means debug
+				currentLevel = "[DEBUG]"
+			case INFO:
+				// case 2 means info
+				currentLevel = "[INFO]"
+			case WARNING:
+				currentLevel = "[WARNING]"
+			case ERROR:
+				// case 4 means error
+				currentLevel = "[ERROR]"
+			case CRITICAL:
+				// case 5 means critical
+				currentLevel = "[CRITICAL]"
+			}
+			if context.logStdOut == Console {
+				fmt.Println(currentTime, currentLevel, trace(), stringBuilder(append(messages, err.Error())))
+			} else {
+				dumpLogToFile(context.logFileName, currentTime, currentLevel, trace(),
+					stringBuilder(append(messages, err.Error())))
+			}
+		}
 	}
 }
 
@@ -109,7 +166,11 @@ func (context *LoggerStruct) Log(messageLevel int, messages ...string) {
 			// case 5 means critical
 			currentLevel = "[CRITICAL]"
 		}
-		fmt.Println(currentTime, currentLevel, trace(), stringBuilder(messages))
+		if context.logStdOut == Console {
+			fmt.Println(currentTime, currentLevel, trace(), stringBuilder(messages))
+		} else {
+			dumpLogToFile(context.logFileName, currentTime, currentLevel, trace(), stringBuilder(messages))
+		}
 	}
 }
 
@@ -134,4 +195,18 @@ func trace() string {
 
 	fn := runtime.FuncForPC(pc)
 	return stringBuilder([]string{"(", fn.Name(), ")"})
+}
+
+func dumpLogToFile(kargs...string) {
+	f, err := os.OpenFile(kargs[0],
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	space := " "
+	if _, err := f.WriteString(stringBuilder([]string{kargs[1], space, kargs[2], space, kargs[3], space,
+		kargs[4], "\n"})); err != nil {
+		fmt.Println(err)
+	}
 }
