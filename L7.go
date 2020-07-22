@@ -36,7 +36,14 @@ type LoggerStruct struct {
 type Params struct {
 	TimeStampFormat, LogLevel  int
 	LogFileName string
-	LogStdOutDst bool
+	LogToConsoleOrFile bool
+}
+
+func GetEnv(env string) int {
+	if os.Getenv(env) != "" {
+		toreturn, _ := strconv.Atoi(env)
+		return toreturn
+	}
 }
 
 // validateLogLevel will validate if the logging level is valid.
@@ -84,7 +91,8 @@ func Logger(kargs Params) LoggerStruct {
 	}
 }
 
-func (context *LoggerStruct) LogErrorIfAny(err error, messageLevel int, messages ...string) {
+func (context *LoggerStruct) LogErrorIfAny(err error, messages ...string) {
+	messageLevel := ERROR
 	if err != nil {
 		if messageLevel >= context.logLevel {
 			var currentTime, currentLevel string
