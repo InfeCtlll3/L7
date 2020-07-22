@@ -44,6 +44,7 @@ func GetEnv(env string) int {
 		toreturn, _ := strconv.Atoi(env)
 		return toreturn
 	}
+	return ERROR
 }
 
 // validateLogLevel will validate if the logging level is valid.
@@ -79,15 +80,15 @@ func Logger(kargs Params) LoggerStruct {
 	if kargs.LogLevel == 0 {
 		kargs.LogLevel = ERROR
 	}
-	if kargs.LogStdOutDst == false {
-		kargs.LogStdOutDst = Console
+	if kargs.LogToConsoleOrFile == false {
+		kargs.LogToConsoleOrFile = Console
 	}
 	if !validateLogLevel(kargs.LogLevel) || kargs.TimeStampFormat > Epoch || kargs.TimeStampFormat < NoTime ||
 		kargs.LogFileName == "" {
 		panic("Misconfiguration when configuring the Logger object.")
 	} else {
 		return LoggerStruct{kargs.TimeStampFormat,
-			kargs.LogLevel, kargs.LogStdOutDst, kargs.LogFileName}
+			kargs.LogLevel, kargs.LogToConsoleOrFile, kargs.LogFileName}
 	}
 }
 
